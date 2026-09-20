@@ -1,0 +1,70 @@
+from collections import deque
+
+# Warehouse map
+# 0 = free space
+# 1 = obstacle
+warehouse = [
+    [0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0]
+]
+
+storage = (0, 0)
+packing = (4, 4)
+
+
+def get_neighbors(position):
+    row, col = position
+
+    directions = [
+        (-1, 0),
+        (1, 0),
+        (0, -1),
+        (0, 1)
+    ]
+
+    neighbors = []
+
+    for dr, dc in directions:
+        new_row = row + dr
+        new_col = col + dc
+
+        if (0 <= new_row < len(warehouse) and
+            0 <= new_col < len(warehouse[0]) and
+            warehouse[new_row][new_col] == 0):
+
+            neighbors.append((new_row, new_col))
+
+    return neighbors
+
+
+def warehouse_agent(start, goal):
+    queue = deque([(start, [start])])
+    visited = {start}
+
+    while queue:
+        current, path = queue.popleft()
+
+        if current == goal:
+            return path
+
+        for next_position in get_neighbors(current):
+            if next_position not in visited:
+                visited.add(next_position)
+                queue.append(
+                    (next_position, path + [next_position])
+                )
+
+    return None
+
+
+path = warehouse_agent(storage, packing)
+
+if path:
+    print("Warehouse Robot Path:")
+    print(" -> ".join(map(str, path)))
+    print("Total steps:", len(path) - 1)
+else:
+    print("No path available.")
