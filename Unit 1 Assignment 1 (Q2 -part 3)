@@ -1,0 +1,37 @@
+# Treasure hunt map
+graph = {
+    "Start": ["Forest", "Cave"],
+    "Forest": ["River", "Hill"],
+    "River": ["Treasure"],
+    "Hill": [],
+    "Cave": ["Tunnel"],
+    "Tunnel": []
+}
+
+start = "Start"
+goal = "Treasure"
+
+visited = set()
+path = []
+
+def dfs(node):
+    visited.add(node)
+    path.append(node)
+
+    if node == goal:
+        return True
+
+    for next_node in graph[node]:
+        if next_node not in visited:
+            if dfs(next_node):
+                return True
+
+    path.pop()
+    return False
+
+
+if dfs(start):
+    print("Path to Treasure:")
+    print("\n ".join(path))
+else:
+    print("Treasure not found.")
