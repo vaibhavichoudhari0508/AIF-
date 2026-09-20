@@ -1,0 +1,110 @@
+from collections import deque
+import heapq
+
+graph = {
+    "A": [("B", 1), ("C", 4)],
+    "B": [("A", 1), ("D", 2), ("E", 5)],
+    "C": [("A", 4), ("F", 3)],
+    "D": [("B", 2), ("G", 3)],
+    "E": [("B", 5), ("G", 1)],
+    "F": [("C", 3), ("G", 2)],
+    "G": [("D", 3), ("E", 1), ("F", 2)]
+}
+
+heuristic = {
+    "A": 6,
+    "B": 5,
+    "C": 4,
+    "D": 3,
+    "E": 1,
+    "F": 2,
+    "G": 0
+}
+
+start = "A"
+goal = "G"
+
+
+# BFS
+def bfs(start, goal):
+    queue = deque([(start, [start])])
+    visited = {start}
+
+    while queue:
+        node, path = queue.popleft()
+
+        if node == goal:
+            return path
+
+        for neighbor, cost in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((neighbor, path + [neighbor]))
+
+    return None
+
+
+# DFS
+def dfs(start, goal):
+    stack = [(start, [start])]
+    visited = set()
+
+    while stack:
+        node, path = stack.pop()
+
+        if node in visited:
+            continue
+
+        visited.add(node)
+
+        if node == goal:
+            return path
+
+        for neighbor, cost in reversed(graph[node]):
+            if neighbor not in visited:
+                stack.append((neighbor, path + [neighbor]))
+
+    return None
+
+
+# A*
+def a_star(start, goal):
+    priority_queue = [(heuristic[start], 0, start, [start])]
+    best_cost = {start: 0}
+
+    while priority_queue:
+        f, cost, node, path = heapq.heappop(priority_queue)
+
+        if node == goal:
+            return path, cost
+
+        for neighbor, edge_cost in graph[node]:
+            new_cost = cost + edge_cost
+
+            if neighbor not in best_cost or new_cost < best_cost[neighbor]:
+                best_cost[neighbor] = new_cost
+
+                new_f = new_cost + heuristic[neighbor]
+
+                heapq.heappush(
+                    priority_queue,
+                    (new_f, new_cost, neighbor, path + [neighbor])
+                )
+
+    return None, None
+
+
+bfs_path = bfs(start, goal)
+dfs_path = dfs(start, goal)
+astar_path, astar_cost = a_star(start, goal)
+
+print("BFS Path:")
+print(" -> ".join(bfs_path))
+
+print("\nDFS Path:")
+print(" -> ".join(dfs_path))
+
+print("\nA* Path:")
+print(" -> ".join(astar_path))
+
+print("\nA* Path Cost:", astar_cost)
